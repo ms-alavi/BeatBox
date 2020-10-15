@@ -1,8 +1,14 @@
 package org.maktab.beatbox.controller.fragment;
 
+import android.content.res.Configuration;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +23,7 @@ import org.maktab.beatbox.R;
 import org.maktab.beatbox.model.Sound;
 import org.maktab.beatbox.repository.BeatBoxRepository;
 
+import java.io.IOException;
 import java.util.List;
 
 public class BeatBoxFragment extends Fragment {
@@ -24,6 +31,7 @@ public class BeatBoxFragment extends Fragment {
     public static final String TAG = "BeatBoxFragment";
     private RecyclerView mRecyclerView;
     private BeatBoxRepository mRepository;
+    private MediaPlayer mMediaPlayer;
 
     public BeatBoxFragment() {
         // Required empty public constructor
@@ -44,6 +52,7 @@ public class BeatBoxFragment extends Fragment {
         setRetainInstance(true);
 
         mRepository = BeatBoxRepository.getInstance(getContext());
+
     }
 
     @Override
@@ -81,7 +90,13 @@ public class BeatBoxFragment extends Fragment {
     }
 
     private void initViews() {
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
+        } else {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }
+
     }
 
     private void setupAdapter() {
@@ -147,6 +162,21 @@ public class BeatBoxFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mSounds.size();
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void playAutoMusic(Uri url){
+        mMediaPlayer=new MediaPlayer();
+        mMediaPlayer.setAudioAttributes(
+                new  AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build()
+        );
+        try {
+            mMediaPlayer.setDataSource(getActivity(), url);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

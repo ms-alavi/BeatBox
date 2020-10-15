@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.os.Build;
 import android.util.Log;
 
 import org.maktab.beatbox.model.Sound;
@@ -23,6 +25,7 @@ public class BeatBoxRepository {
 
     private Context mContext;
     private SoundPool mSoundPool;
+    private MediaPlayer mMediaPlayer;
     private List<Sound> mSounds = new ArrayList<>();
 
     public static BeatBoxRepository getInstance(Context context) {
@@ -38,9 +41,16 @@ public class BeatBoxRepository {
 
     private BeatBoxRepository(Context context) {
         mContext = context.getApplicationContext();
-        mSoundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+      //  mSoundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mSoundPool=new SoundPool.Builder().build();
+        }else mSoundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+
 
         loadSounds();
+     //   mMediaPlayer=new MediaPlayer();
+
     }
 
     //it runs on constructor at the start of repository
